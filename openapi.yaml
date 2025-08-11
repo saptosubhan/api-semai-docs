@@ -49,7 +49,7 @@ paths:
                 request_id:
                   type: string
                   format: uuid
-                  description: UUID unik dari BPDP untuk request ini.
+                  description: UUID dari BPDP untuk request ini.
                   example: RAND-UUID
       responses:
         '200':
@@ -89,7 +89,7 @@ paths:
                 request_id:
                   type: string
                   format: uuid
-                  description: UUID unik dari SEMAI untuk request ini.
+                  description: UUID dari SEMAI untuk request ini.
                   example: RAND-UUID
                 category:
                   type: string
@@ -145,7 +145,7 @@ paths:
                 request_id:
                   type: string
                   format: uuid
-                  description: UUID unik dari BPDP.
+                  description: UUID dari BPDP.
                   example: RAND-UUID
                 category:
                   type: string
@@ -191,7 +191,7 @@ paths:
                 request_id:
                   type: string
                   format: uuid
-                  description: UUID unik dari SEMAI.
+                  description: UUID dari SEMAI.
                   example: RAND-UUID
                 category:
                   type: string

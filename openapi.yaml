@@ -1,74 +1,239 @@
 openapi: 3.1.0
 info:
-  title: API Generate Files
+  title: API Integrasi BPDP - SEMAI
+  description: |-
+    Spesifikasi API untuk pertukaran data antara sistem BPDP dan SEMAI, mencakup manajemen file dan tarif pungutan.
   version: 1.0.0
-  description: >
-    API untuk mengirimkan informasi file dari SUCOFINDO ke SEMAI.
-    Menerima metadata file dan mengembalikan status proses.
-
+servers:
+  - url: https://api.bpdp.com/v1
+    description: Server API BPDP
+  - url: https://api.semai.com/v1
+    description: Server API SEMAI
+tags:
+  - name: Files
+    description: API untuk mengelola notifikasi dan transfer data file.
+  - name: Tarif Pungutan
+    description: API untuk sinkronisasi data tarif pungutan.
 paths:
-  /generate-files:
+  /files/generate:
     post:
-      summary: Mengirim data file dari SUCOFINDO ke SEMAI
+      summary: Notifikasi File Baru (BPDP ke SEMAI)
+      description: BPDP mengirim notifikasi ke SEMAI tentang file yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
+      tags:
+        - Files
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                file_id:
-                  type: integer
-                  description: ID file upload di database
-                  example: 1
-                file_url:
-                  type: string
-                  format: uri
-                  description: URL untuk mengakses file
-                  example: "https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx"
-                category:
-                  type: string
-                  description: >
-                    Kategori file upload.
-                    Contoh: rekening_koran, master_hpe, keberatan_sp3es, restitusi
-                  example: "rekening_koran"
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari SUCOFINDO
-                  example: "a12f6b1e-4d98-4b22-bc41-2f6b9c3e8e9f"
               required:
                 - file_id
                 - file_url
                 - category
                 - request_id
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database BPDP.
+                  example: 1
+                file_url:
+                  type: string
+                  format: uri
+                  description: URL untuk mengakses file.
+                  example: https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx
+                category:
+                  type: string
+                  description: Kategori file upload, seperti "rekening_koran", "master_hpe", dll.
+                  example: rekening_koran
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID unik dari BPDP untuk request ini.
+                  example: RAND-UUID
       responses:
-        "200":
-          description: Request berhasil diproses
+        '200':
+          description: Notifikasi berhasil diterima oleh SEMAI.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: success
-                  data:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+  /files/data:
+    post:
+      summary: Transfer Data dari File (SEMAI ke BPDP)
+      description: SEMAI mengirim data yang sudah diproses dari sebuah file ke BPDP.
+      tags:
+        - Files
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_id
+                - request_id
+                - category
+                - row_count
+                - rows
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database SEMAI.
+                  example: 123
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID unik dari SEMAI untuk request ini.
+                  example: RAND-UUID
+                category:
+                  type: string
+                  description: Kategori file upload, seperti "rekening_koran", "master_hpe", dll.
+                  example: rekening_koran
+                row_count:
+                  type: integer
+                  description: Jumlah baris data dalam array 'rows'.
+                  example: 20
+                rows:
+                  type: array
+                  description: Isi data dalam bentuk array.
+                  items:
                     type: object
-                    description: Data tambahan jika ada
-        "403":
-          description: Akses ditolak
+                    # TODO: Tambahkan struktur data spesifik di sini jika sudah ada
+                    description: Struktur data dari setiap baris.
+              example:
+                file_id: 123
+                request_id: "RAND-UUID"
+                category: "rekening_koran"
+                row_count: 20
+                rows: []
+      responses:
+        '200':
+          description: Data berhasil diterima dan diproses oleh BPDP.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 403
-                  message:
-                    type: string
-                    example: forbidden
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+  /tarif-pungutan/update:
+    post:
+      summary: Update Tarif Pungutan (BPDP ke SEMAI)
+      description: BPDP mengirimkan informasi tarif pungutan ke SEMAI untuk update.
+      tags:
+        - Tarif Pungutan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - request_id
+                - category
+                - uraian_lhp
+                - tarif_pungutan
+              properties:
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID unik dari BPDP.
+                  example: RAND-UUID
+                category:
+                  type: string
+                  description: Kategori tarif, contoh "tarif_pungutan".
+                  example: tarif_pungutan
+                uraian_lhp:
+                  type: string
+                  description: Uraian LHP (Laporan Hasil Pemeriksaan).
+                  example: "Uraian LHP Contoh"
+                tarif_pungutan:
+                  type: string
+                  description: Nilai tarif pungutan.
+                  example: "20%"
+      responses:
+        '200':
+          description: Data tarif berhasil diupdate di SEMAI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+
+  /tarif-pungutan/get:
+    post:
+      summary: Permintaan Tarif Pungutan (SEMAI ke BPDP)
+      description: SEMAI meminta data tarif pungutan yang lebih detail dari BPDP.
+      tags:
+        - Tarif Pungutan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - request_id
+                - category
+                - kelompok_tarif
+                - nilai_tarif
+                - satuan_nilai_tarif
+              properties:
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID unik dari SEMAI.
+                  example: RAND-UUID
+                category:
+                  type: string
+                  description: Kategori tarif, contoh "tarif_pungutan".
+                  example: tarif_pungutan
+                kelompok_tarif:
+                  type: string
+                  description: Kelompok tarif (I, II, III, IV, dll.).
+                  example: "I,II,III,IV"
+                nilai_tarif:
+                  type: string
+                  description: Nilai tarif yang berlaku.
+                  example: "20, 7.5, 5"
+                satuan_nilai_tarif:
+                  type: string
+                  description: Satuan dari nilai tarif (percent, usd).
+                  example: "percent, usd"
+      responses:
+        '200':
+          description: Data tarif berhasil dikirim ke SEMAI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 200
+        message:
+          type: string
+          description: Deskripsi status respons.
+          example: success
+        data:
+          type: object
+          nullable: true
+          description: Objek data opsional.
+          example: {}

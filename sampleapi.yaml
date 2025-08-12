@@ -114,3 +114,4 @@ components:
         nomor_keputusan:
           type: string
           example: "NOMOR 2018 TAHUN 2023"
+          

@@ -1,302 +1,188 @@
 openapi: 3.1.0
 info:
-  title: API Integrasi BPDP - SEMAI
-  description: |-
-    Spesifikasi API untuk pertukaran data antara sistem BPDP dan SEMAI, mencakup manajemen file dan tarif pungutan.
-
-    * _untuk *url dan paramater* masih bisa disesuaikan, ini gambaran kebutuhan untuk sistem levy (sibilly)_
+  title: BPDP-SEMAI API
   version: 1.0.0
+  description: |
+    API untuk pertukaran data antara sistem BPDP dan SEMAI, mencakup manajemen file dan tarif pungutan.
+
 servers:
-  - url: https://api.bpdp.com/v1
-    description: Server API BPDP
-  - url: https://api.semai.com/v1
-    description: Server API SEMAI
-tags:
-  - name: Rekening Koran
-    description: API untuk rekening koran.
-  - name: Master HPE
-    description: API untuk rekening koran.
-  - name: Tarif Pungutan
-    description: API untuk sinkronisasi data tarif pungutan.
+  - url: https://api.example.com/v1
+
 paths:
-  /generate-pdf/outbound:
+  /files/generate:
     post:
-      summary: Notifikasi File Baru Rekening KORAN (BPDP ke SEMAI)
-      description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
-      tags:
-        - Rekening Koran
+      summary: Upload file dan generate data dari BPDP ke SEMAI
+      operationId: bpdpToSemaiGenerateFile
       requestBody:
+        description: Payload untuk request file dari BPDP ke SEMAI
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - file_id
-                - request_id
-                - category
-                - row_count
-                - rows
-              properties:
-                file_id:
-                  type: integer
-                  description: ID file upload di database SEMAI.
-                  example: 123
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari SEMAI untuk request ini.
-                  example: "RAND-UUID"
-                category:
-                  type: string
-                  description: Kategori file upload.
-                  enum:
-                    - rekening_koran
-                    - kepmendag_merk
-                  example: "rekening_koran"
-                row_count:
-                  type: integer
-                  description: Jumlah baris data dalam array 'rows'.
-                  example: 2
-                rows:
-                  type: array
-                  description: Isi data dalam bentuk array.
-                  items:
-                    oneOf:
-                      - $ref: '#/components/schemas/RekeningKoranData'
-                      - $ref: '#/components/schemas/KepmendagMerkData'
-            example:
-              file_id: 123
-              request_id: "RAND-UUID"
-              category: "rekening_koran"
-              row_count: 1
-              rows:
-                - tanggal_transaksi: "2025-01-01"
-                  bank: "BCA"
-                  kode_billing: "1234567890"
-                  jumlah_pungutan: 100000.00
+              $ref: '#/components/schemas/BPDPToSemaiFileRequest'
       responses:
         '200':
-          description: Notifikasi berhasil diterima oleh SEMAI.
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '400':
-          description: Request tidak valid.
+                $ref: '#/components/schemas/DefaultResponse'
         '403':
-          description: Akses ditolak.
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
-  /generate-pdf/inbound:
+  /files/submit:
     post:
-      summary: Transfer Data dari File Rekening koran (SEMAI ke BPDP)
-      description: SEMAI mengirim data yang sudah diproses dari file Rekening Koran ke BPDP.
-      tags:
-        - Rekening Koran
+      summary: Submit data yang telah diproses dari SEMAI ke BPDP
+      operationId: semaiToBpdpSubmitFile
       requestBody:
+        description: Payload untuk submit data hasil pemrosesan file dari SEMAI ke BPDP
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - file_id
-                - request_id
-                - category
-                - row_count
-                - rows
-              properties:
-                file_id:
-                  type: integer
-                  description: ID file upload di database SEMAI.
-                  example: 123
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari SEMAI untuk request ini.
-                  example: RAND-UUID
-                category:
-                  type: string
-                  description: Kategori file upload, seperti "rekening_koran", "master_hpe", dll.
-                  example: rekening_koran
-                row_count:
-                  type: integer
-                  description: Jumlah baris data dalam array 'rows'.
-                  example: 20
-                rows:
-                  type: array
-                  description: Isi data dalam bentuk array.
-                  items:
-                    type: object
-                    description: Struktur data dari setiap baris.
-                    required:
-                      - tanggal_transaksi
-                      - bank
-                      - kode_billing
-                      - jumlah_pungutan
-                    properties:
-                      tanggal_transaksi:
-                        type: string
-                        format: date
-                        description: Tanggal transaksi.
-                        example: "2025-01-01"
-                      bank:
-                        type: string
-                        description: Nama bank.
-                        example: "BCA"
-                      kode_billing:
-                        type: string
-                        description: Kode billing.
-                        example: "1234567890"
-                      jumlah_pungutan:
-                        type: number
-                        format: float
-                        description: Jumlah pungutan dalam bentuk angka.
-                        example: 100000.00
-            example:
-              file_id: 123
-              request_id: "RAND-UUID"
-              category: "rekening_koran"
-              row_count: 20
-              rows:
-                - tanggal_transaksi: "2025-01-01"
-                  bank: "BCA"
-                  kode_billing: "1234567890"
-                  jumlah_pungutan: 100000.00
+              $ref: '#/components/schemas/SemaiToBpdpFileRequest'
       responses:
         '200':
-          description: Data berhasil diterima dan diproses oleh BPDP.
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '400':
-          description: Request tidak valid.
+                $ref: '#/components/schemas/DefaultResponse'
         '403':
-          description: Akses ditolak.
-          
-  /tarif-pungutan/outbound:
-    post:
-      summary: Update Tarif Pungutan (BPDP ke SEMAI)
-      description: BPDP mengirimkan informasi tarif pungutan ke SEMAI untuk update.
-      tags:
-        - Tarif Pungutan
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - request_id
-                - category
-                - uraian_lhp
-                - tarif_pungutan
-              properties:
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari BPDP.
-                  example: RAND-UUID
-                category:
-                  type: string
-                  description: Kategori tarif, contoh "tarif_pungutan".
-                  example: tarif_pungutan
-                uraian_lhp:
-                  type: string
-                  description: Uraian LHP (Laporan Hasil Pemeriksaan).
-                  example: "Uraian LHP Contoh"
-                tarif_pungutan:
-                  type: string
-                  description: Nilai tarif pungutan.
-                  example: "20%"
-      responses:
-        '200':
-          description: Data tarif berhasil diupdate di SEMAI.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '400':
-          description: Request tidak valid.
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
-  /tarif-pungutan/inbound:
+  /tariffs:
     post:
-      summary: Permintaan Tarif Pungutan (SEMAI ke BPDP)
-      description: SEMAI meminta data tarif pungutan yang lebih detail dari BPDP.
-      tags:
-        - Tarif Pungutan
+      summary: Mendokumentasikan tarif pungutan dari BPDP ke SEMAI
+      operationId: bpdpToSemaiTariff
       requestBody:
+        description: Request untuk tarif pungutan dari BPDP ke SEMAI
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - request_id
-                - category
-                - kelompok_tarif
-                - nilai_tarif
-                - satuan_nilai_tarif
-              properties:
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari SEMAI.
-                  example: RAND-UUID
-                category:
-                  type: string
-                  description: Kategori tarif, contoh "tarif_pungutan".
-                  example: tarif_pungutan
-                kelompok_tarif:
-                  type: string
-                  description: Kelompok tarif (I, II, III, IV, dll.).
-                  example: "I,II,III,IV"
-                nilai_tarif:
-                  type: string
-                  description: Nilai tarif yang berlaku.
-                  example: "20, 7.5, 5"
-                satuan_nilai_tarif:
-                  type: string
-                  description: Satuan dari nilai tarif (percent, usd).
-                  example: "percent, usd"
+              $ref: '#/components/schemas/BPDPToSemaiTariffRequest'
       responses:
         '200':
-          description: Data tarif berhasil dikirim ke SEMAI.
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '400':
-          description: Request tidak valid.
+                $ref: '#/components/schemas/DefaultResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /tariffs/update:
+    post:
+      summary: Mengirimkan pembaruan tarif pungutan dari SEMAI ke BPDP
+      operationId: semaiToBpdpTariffUpdate
+      requestBody:
+        description: Request untuk pembaruan tarif pungutan dari SEMAI ke BPDP
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SemaiToBpdpTariffRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
 components:
   schemas:
-    ApiResponse:
+    DefaultResponse:
       type: object
       properties:
         status:
           type: integer
-          description: HTTP status code.
+          description: Kode status HTTP
           example: 200
         message:
           type: string
-          description: Deskripsi status respons.
+          description: Pesan status response
           example: success
         data:
           type: object
+          description: Optional data payload
           nullable: true
-          description: Objek data opsional.
-          example: {}
+
+    BPDPToSemaiFileRequest:
+      type: object
+      required:
+        - file_id
+        - file_url
+        - category
+        - request_id
+      properties:
+        file_id:
+          type: integer
+          description: ID file upload di database
+          example: 1
+        file_url:
+          type: string
+          format: uri
+          description: URL untuk mengakses file
+          example: "https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx"
+        category:
+          type: string
+          description: Kategori file upload
+          example: "rekening_koran"
+          enum: [rekening_koran, master_hpe, keberatan_sp3es, restitusi]
+        request_id:
+          type: string
+          format: uuid
+          description: UUID dari BPDP
+          example: "01f2e3a4-b5c6-d7e8-f9a0-112233445566"
+
+    SemaiToBpdpFileRequest:
+      type: object
+      required:
+        - file_id
+        - request_id
+        - category
+        - rows
+      properties:
+        file_id:
+          type: integer
+          description: ID file upload di database SEMAI
+          example: 123
+        request_id:
+          type: string
+          format: uuid
+          description: UUID dari SEMAI
+          example: "01f2e3a4-b5c6-d7e8-f9a0-112233445566"
+        category:
+          type: string
+          description: Kategori file upload
+          example: "rekening_koran"
+          enum: [rekening_koran, kepmendag_merk]
+        row_count:
+          type: integer
+          description: Jumlah baris data, khusus untuk bulk insert
+          example: 20
+        rows:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/RekeningKoranData'
+              - $ref: '#/components/schemas/KepmendagMerkData'
+          description: Isi data dalam bentuk array
 
     RekeningKoranData:
       type: object
-      description: Struktur data untuk kategori 'rekening_koran'.
-      required:
-        - tanggal_transaksi
-        - bank
-        - kode_billing
-        - jumlah_pungutan
       properties:
         tanggal_transaksi:
           type: string
@@ -312,15 +198,9 @@ components:
           type: number
           format: float
           example: 100000.00
-
+    
     KepmendagMerkData:
       type: object
-      description: Struktur data untuk kategori 'kepmendag_merk'.
-      required:
-        - nama_merek
-        - pemilik_merek
-        - pemroduksi_merek
-        - nomor_keputusan
       properties:
         nama_merek:
           type: string
@@ -334,4 +214,53 @@ components:
         nomor_keputusan:
           type: string
           example: "NOMOR 2018 TAHUN 2023"
-    
+
+    BPDPToSemaiTariffRequest:
+      type: object
+      required:
+        - request_id
+        - category
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: UUID dari BPDP
+          example: "01f2e3a4-b5c6-d7e8-f9a0-112233445566"
+        category:
+          type: string
+          description: Kategori permintaan
+          example: "tarif_pungutan"
+        uraian_lhp:
+          type: string
+          description: Uraian laporan hasil pemeriksaan
+        tarif_pungutan:
+          type: string
+          description: Tarif pungutan dalam format string
+
+    SemaiToBpdpTariffRequest:
+      type: object
+      required:
+        - request_id
+        - category
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: UUID dari SEMAI
+          example: "01f2e3a4-b5c6-d7e8-f9a0-112233445566"
+        category:
+          type: string
+          description: Kategori permintaan
+          example: "tarif_pungutan"
+        kelompok_tarif:
+          type: string
+          description: Kelompok tarif (dipisahkan koma)
+          example: "I,II,III"
+        nilai_tarif:
+          type: string
+          description: Nilai tarif (dipisahkan koma)
+          example: "20,7.5,5"
+        satuan_nilai_tarif:
+          type: string
+          description: Satuan dari nilai tarif
+          example: "percent,usd"

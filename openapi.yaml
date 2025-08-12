@@ -14,14 +14,14 @@ servers:
 tags:
   - name: Rekening Koran
     description: API untuk rekening koran.
-  - name: Master HPE
-    description: API untuk rekening koran.
+  - name: Master KepMenDag Merek
+    description: API untuk Master KepMenDag Merek.
   - name: Tarif Pungutan
     description: API untuk sinkronisasi data tarif pungutan.
 paths:
   /generate-pdf/rekening-koran/outbound:
     post:
-      summary: Notifikasi File Baru Rekening KORAN (BPDP ke SEMAI)
+      summary: Rekening KORAN (BPDP ke SEMAI)
       description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
       tags:
         - Rekening Koran
@@ -48,7 +48,7 @@ paths:
                   example: https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx
                 category:
                   type: string
-                  description: Kategori file upload, seperti "rekening_koran", "master_hpe", dll.
+                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
                   example: rekening_koran
                 request_id:
                   type: string
@@ -69,8 +69,8 @@ paths:
 
   /generate-pdf/rekening-koran/inbound:
     post:
-      summary: Transfer Data dari File Rekening koran (SEMAI ke BPDP)
-      description: SEMAI mengirim data yang sudah diproses dari file Rekening Koran ke BPDP.
+      summary: Rekening koran (SEMAI ke BPDP)
+      description: SEMAI mengirim data Rekening Koran yang sudah diproses ke BPDP.
       tags:
         - Rekening Koran
       requestBody:
@@ -97,7 +97,7 @@ paths:
                   example: RAND-UUID
                 category:
                   type: string
-                  description: Kategori file upload, seperti "rekening_koran", "master_hpe", dll.
+                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
                   example: rekening_koran
                 row_count:
                   type: integer
@@ -143,6 +143,188 @@ paths:
                   bank: "BCA"
                   kode_billing: "1234567890"
                   jumlah_pungutan: 100000.00
+      responses:
+        '200':
+          description: Data berhasil diterima dan diproses oleh BPDP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+    /generate-pdf/rekening-koran/outbound:
+    post:
+      summary: Notifikasi File Baru Rekening KORAN (BPDP ke SEMAI)
+      description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
+      tags:
+        - Rekening Koran
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_id
+                - file_url
+                - category
+                - request_id
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database BPDP.
+                  example: 1
+                file_url:
+                  type: string
+                  format: uri
+                  description: URL untuk mengakses file.
+                  example: https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx
+                category:
+                  type: string
+                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
+                  example: rekening_koran
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID dari BPDP untuk request ini.
+                  example: RAND-UUID
+      responses:
+        '200':
+          description: Notifikasi berhasil diterima oleh SEMAI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+  /generate-pdf/kepmendagmerek/outbound:
+    post:
+      summary: [outbound] KepMenDag MEREK (BPDP ke SEMAI)
+      description: BPDP mengirim notifikasi ke SEMAI tentang file KepMenDag MEREK yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
+      tags:
+        - Master KepMenDag Merek
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_id
+                - file_url
+                - category
+                - request_id
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database BPDP.
+                  example: 1
+                file_url:
+                  type: string
+                  format: uri
+                  description: URL untuk mengakses file.
+                  example: https://example.com/storage/uploads/kepmendag_merek/2018.pdf
+                category:
+                  type: string
+                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
+                  example: kepmendag_merek
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID dari BPDP untuk request ini.
+                  example: RAND-UUID
+      responses:
+        '200':
+          description: Notifikasi berhasil diterima oleh SEMAI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+  /generate-pdf/kepmendagmerek/inbound:
+    post:
+      summary: KepMenDag Merek (SEMAI ke BPDP)
+      description: SEMAI mengirim data file KepMenDag Merek yang sudah diproses ke BPDP.
+      tags:
+        - Master KepMenDag MEREK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_id
+                - request_id
+                - category
+                - row_count
+                - rows
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database SEMAI.
+                  example: 123
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID dari SEMAI untuk request ini.
+                  example: RAND-UUID
+                category:
+                  type: string
+                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
+                  example: rekening_koran
+                row_count:
+                  type: integer
+                  description: Jumlah baris data dalam array 'rows'.
+                  example: 20
+                rows:
+                  type: array
+                  description: Isi data dalam bentuk array.
+                  items:
+                    type: object
+                    description: Struktur data dari setiap baris.
+                    required:
+                      - nomor_keputusan
+                      - nama_merek
+                      - pemilik_merek
+                      - pemroduksi_merek
+                    properties:
+                      nomor_keputusan:
+                        type: string
+                        description: Nomor keputusan (KepMenDag).
+                        example: "NOMOR 2018 TAHUN 2023"
+                      nama_merek:
+                        type: string
+                        description: Nama merek.
+                        example: "AL-BAHER"
+                      pemilik_merek:
+                        type: string
+                        description: Perusahaan yang memiliki merek tersebut.
+                        example: "PT. Berkah Emas Sumber Terang"
+                      pemroduksi:
+                        type: string
+                        description: Perusahaan yang memproduksi olahan sawit dari merek tersebut.
+                        example: "PT. Batara Elok Semesta Terpadu"
+            example:
+              file_id: 4444
+              request_id: "RAND-UUID"
+              category: "kepmendag_merek"
+              row_count: 30
+              rows:
+                - nomor_keputusan: "NOMOR 2018 TAHUN 2023"
+                  nama_merek: "AL-BAHER"
+                  pemilik_merek: "PT. Berkah Emas Sumber Terang"
+                  pemroduksi: "PT. Batara Elok Semesta Terpadu"
       responses:
         '200':
           description: Data berhasil diterima dan diproses oleh BPDP.

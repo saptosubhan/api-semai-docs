@@ -205,7 +205,7 @@ paths:
 
   /generate-pdf/kepmendagmerek/outbound:
     post:
-      summary: [outbound] KepMenDag MEREK (BPDP ke SEMAI)
+      summary: "[outbound] KepMenDag MEREK (BPDP ke SEMAI)"
       description: BPDP mengirim notifikasi ke SEMAI tentang file KepMenDag MEREK yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
       tags:
         - Master KepMenDag Merek

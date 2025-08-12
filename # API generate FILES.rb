@@ -23,7 +23,20 @@
     request_id: "RAND-UUID", # UUID dari SEMAI
     category: "rekening_koran", # Kategori file upload, contoh "rekening_koran", "master_hpe", "keberatan_sp3es", "restitusi"
     row_count: 20, # jumlah rows data (khusus untuk bulk insert)
-    rows: [] # isi data dalam bentuk arrays
+    rows: [
+        { #category rekening_koran
+            tanggal_transaksi: "2025-01-01",
+            bank: "BCA",
+            kode_billing: "1234567890",
+            jumlah_pungutan: 100000.00
+        },
+        { #category kepmendag_merk
+            nama_merek: "AFRICA SUPER OLIO",
+            pemilik_merek: "PT. Berkah Emas Sumber Terang",
+            pemroduksi_merek: "PT. Royal Industries Indonesia",
+            nomor_keputusan: "NOMOR 2018 TAHUN 2023"
+        }
+    ] # isi data dalam bentuk arrays
 }
 ### Response
 {
@@ -63,3 +76,4 @@
     message: success, failed, error, etc..
     data : {} # optional jika ada               
 }
+

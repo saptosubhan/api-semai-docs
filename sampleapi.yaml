@@ -1,0 +1,116 @@
+openapi: 3.1.0
+info:
+  title: API Integrasi BPDP - SEMAI
+  version: 1.0.0
+  description: API untuk pertukaran data antara sistem BPDP dan SEMAI.
+
+paths:
+  /inbound/data:
+    post:
+      summary: Mengirim Data dari SEMAI ke BPDP
+      description: SEMAI mengirim data bulk yang sudah diproses berdasarkan kategori.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_id
+                - request_id
+                - category
+                - row_count
+                - rows
+              properties:
+                file_id:
+                  type: integer
+                  description: ID file upload di database SEMAI.
+                  example: 123
+                request_id:
+                  type: string
+                  format: uuid
+                  description: UUID dari SEMAI untuk request ini.
+                  example: "RAND-UUID"
+                category:
+                  type: string
+                  description: Kategori file upload.
+                  enum:
+                    - rekening_koran
+                    - kepmendag_merk
+                  example: "rekening_koran"
+                row_count:
+                  type: integer
+                  description: Jumlah baris data dalam array 'rows'.
+                  example: 2
+                rows:
+                  type: array
+                  description: Isi data dalam bentuk array.
+                  items:
+                    oneOf:
+                      - $ref: '#/components/schemas/RekeningKoranData'
+                      - $ref: '#/components/schemas/KepmendagMerkData'
+            example:
+              file_id: 123
+              request_id: "RAND-UUID"
+              category: "rekening_koran"
+              row_count: 1
+              rows:
+                - tanggal_transaksi: "2025-01-01"
+                  bank: "BCA"
+                  kode_billing: "1234567890"
+                  jumlah_pungutan: 100000.00
+      responses:
+        '200':
+          description: Data berhasil diterima dan diproses.
+        '400':
+          description: Request tidak valid.
+        '403':
+          description: Akses ditolak.
+
+components:
+  schemas:
+    RekeningKoranData:
+      type: object
+      description: Struktur data untuk kategori 'rekening_koran'.
+      required:
+        - tanggal_transaksi
+        - bank
+        - kode_billing
+        - jumlah_pungutan
+      properties:
+        tanggal_transaksi:
+          type: string
+          format: date
+          example: "2025-01-01"
+        bank:
+          type: string
+          example: "BCA"
+        kode_billing:
+          type: string
+          example: "1234567890"
+        jumlah_pungutan:
+          type: number
+          format: float
+          example: 100000.00
+
+    KepmendagMerkData:
+      type: object
+      description: Struktur data untuk kategori 'kepmendag_merk'.
+      required:
+        - nama_merek
+        - pemilik_merek
+        - pemroduksi_merek
+        - nomor_keputusan
+      properties:
+        nama_merek:
+          type: string
+          example: "AFRICA SUPER OLIO"
+        pemilik_merek:
+          type: string
+          example: "PT. Berkah Emas Sumber Terang"
+        pemroduksi_merek:
+          type: string
+          example: "PT. Royal Industries Indonesia"
+        nomor_keputusan:
+          type: string
+          example: "NOMOR 2018 TAHUN 2023"

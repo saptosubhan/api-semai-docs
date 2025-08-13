@@ -157,10 +157,10 @@ paths:
 
   /generate-pdf/kepmendagmerek/outbound:
     post:
-      summary: Notifikasi File Baru Rekening KORAN (BPDP ke SEMAI)
-      description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
+      summary: Notifikasi File Baru kepmendag merek (BPDP ke SEMAI)
+      description: BPDP mengirim notifikasi ke SEMAI tentang file kepmendag merek yang baru diunggah.
       tags:
-        - Rekening Koran
+        - Master KepMenDag Merek
       requestBody:
         required: true
         content:
@@ -181,11 +181,11 @@ paths:
                   type: string
                   format: uri
                   description: URL untuk mengakses file.
-                  example: https://example.com/storage/uploads/rekening-koran/evidence/file.xlsx
+                  example: https://example.com/storage/uploads/kepmendagmerek.pdf
                 category:
                   type: string
-                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
-                  example: rekening_koran
+                  description: Kategori file upload "kepmendag_merek".
+                  example: kepmendag_merek
                 request_id:
                   type: string
                   format: uuid
@@ -208,7 +208,7 @@ paths:
       summary: KepMenDag Merek (SEMAI ke BPDP)
       description: SEMAI mengirim data file KepMenDag Merek yang sudah diproses ke BPDP.
       tags:
-        - Master KepMenDag MEREK
+        - Master KepMenDag Merek
       requestBody:
         required: true
         content:
@@ -233,7 +233,7 @@ paths:
                   example: RAND-UUID
                 category:
                   type: string
-                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
+                  description: Kategori file upload "kepmendag_merek".
                   example: rekening_koran
                 row_count:
                   type: integer

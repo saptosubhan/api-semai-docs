@@ -305,7 +305,8 @@ paths:
                 - request_id
                 - category
                 - uraian_lhp
-                - tarif_pungutan
+                - hasil_lab
+                - hs_code
               properties:
                 request_id:
                   type: string
@@ -320,10 +321,14 @@ paths:
                   type: string
                   description: Uraian LHP (Laporan Hasil Pemeriksaan).
                   example: "Uraian LHP Contoh"
-                tarif_pungutan:
+                hasil_lab:
                   type: string
-                  description: Nilai tarif pungutan.
-                  example: "20%"
+                  description: hasil lab dari BC
+                  example: "Hasil Lab"
+                hs_code:
+                  type: string
+                  description: identifikasi jenis olahan sawit
+                  example: "ex 12079990"
       responses:
         '200':
           description: Data tarif berhasil diupdate di SEMAI.

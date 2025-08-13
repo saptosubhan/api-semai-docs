@@ -155,7 +155,7 @@ paths:
         '403':
           description: Akses ditolak.
 
-  /generate-pdf/rekening-koran/outbound:
+  /generate-pdf/kepmendagmerek/outbound:
     post:
       summary: Notifikasi File Baru Rekening KORAN (BPDP ke SEMAI)
       description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
@@ -186,54 +186,6 @@ paths:
                   type: string
                   description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
                   example: rekening_koran
-                request_id:
-                  type: string
-                  format: uuid
-                  description: UUID dari BPDP untuk request ini.
-                  example: RAND-UUID
-      responses:
-        '200':
-          description: Notifikasi berhasil diterima oleh SEMAI.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '400':
-          description: Request tidak valid.
-        '403':
-          description: Akses ditolak.
-
-  /generate-pdf/kepmendagmerek/outbound:
-    post:
-      summary: [outbound] KepMenDag MEREK (BPDP ke SEMAI)
-      description: BPDP mengirim notifikasi ke SEMAI tentang file KepMenDag MEREK yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
-      tags:
-        - Master KepMenDag Merek
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - file_id
-                - file_url
-                - category
-                - request_id
-              properties:
-                file_id:
-                  type: integer
-                  description: ID file upload di database BPDP.
-                  example: 1
-                file_url:
-                  type: string
-                  format: uri
-                  description: URL untuk mengakses file.
-                  example: https://example.com/storage/uploads/kepmendag_merek/2018.pdf
-                category:
-                  type: string
-                  description: Kategori file upload, seperti "rekening_koran", "kepmendag_merek", dll.
-                  example: kepmendag_merek
                 request_id:
                   type: string
                   format: uuid

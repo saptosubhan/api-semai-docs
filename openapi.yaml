@@ -157,7 +157,7 @@ paths:
 
   /generate-pdf/kepmendagmerek/outbound:
     post:
-      summary: Notifikasi File Baru kepmendag merek (BPDP ke SEMAI)
+      summary: KepMenDag Merk (BPDP ke SEMAI)
       description: BPDP mengirim notifikasi ke SEMAI tentang file kepmendag merek yang baru diunggah.
       tags:
         - Master KepMenDag Merek
@@ -291,7 +291,7 @@ paths:
           
   /tarif-pungutan/outbound:
     post:
-      summary: Update Tarif Pungutan (BPDP ke SEMAI)
+      summary: Tarif Pungutan (BPDP ke SEMAI)
       description: BPDP mengirimkan informasi tarif pungutan ke SEMAI untuk update.
       tags:
         - Tarif Pungutan
@@ -336,7 +336,7 @@ paths:
 
   /tarif-pungutan/inbound:
     post:
-      summary: Permintaan Tarif Pungutan (SEMAI ke BPDP)
+      summary: Tarif Pungutan (SEMAI ke BPDP)
       description: SEMAI meminta data tarif pungutan yang lebih detail dari BPDP.
       tags:
         - Tarif Pungutan

@@ -69,7 +69,7 @@ paths:
 
   /generate-pdf/rekening-koran/inbound:
     post:
-      summary: [INBOUND] SEMAI ke BPDP
+      summary: "[INBOUND] SEMAI ke BPDP"
       description: SEMAI mengirim data Rekening Koran yang sudah diproses ke BPDP.
       tags:
         - Rekening Koran
@@ -157,7 +157,7 @@ paths:
 
   /generate-pdf/kepmendagmerek/outbound:
     post:
-      summary: [OUTBOUND] BPDP ke SEMAI
+      summary: "[OUTBOUND] BPDP ke SEMAI"
       description: BPDP mengirim notifikasi ke SEMAI tentang file kepmendag merek yang baru diunggah.
       tags:
         - Master KepMenDag Merek
@@ -205,7 +205,7 @@ paths:
 
   /generate-pdf/kepmendagmerek/inbound:
     post:
-      summary: [INBOUND] SEMAI ke BPDP
+      summary: "[INBOUND] SEMAI ke BPDP"
       description: SEMAI mengirim data file KepMenDag Merek yang sudah diproses ke BPDP.
       tags:
         - Master KepMenDag Merek
@@ -291,7 +291,7 @@ paths:
           
   /tarif-pungutan/outbound:
     post:
-      summary: Tarif Pungutan (BPDP ke SEMAI)
+      summary: "[OUTBOUND] BPDP ke SEMAI"
       description: BPDP mengirimkan informasi tarif pungutan ke SEMAI untuk update.
       tags:
         - Tarif Pungutan
@@ -336,7 +336,7 @@ paths:
 
   /tarif-pungutan/inbound:
     post:
-      summary: Tarif Pungutan (SEMAI ke BPDP)
+      summary: "[INBOUND] SEMAI ke BPDP"
       description: SEMAI meminta data tarif pungutan yang lebih detail dari BPDP.
       tags:
         - Tarif Pungutan

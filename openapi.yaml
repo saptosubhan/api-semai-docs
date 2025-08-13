@@ -21,7 +21,7 @@ tags:
 paths:
   /generate-pdf/rekening-koran/outbound:
     post:
-      summary: [OUTBOUND] BPDP ke SEMAI
+      summary: "[OUTBOUND] BPDP ke SEMAI"
       description: BPDP mengirim notifikasi ke SEMAI tentang file REKENING KORAN yang baru diunggah. SEMAI akan memproses file tersebut menggunakan URL yang diberikan.
       tags:
         - Rekening Koran
